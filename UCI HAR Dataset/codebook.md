@@ -42,12 +42,12 @@ output: html_document
 * **features** : File containing the features of the measures dataframe.
 
 * **activity_labels** : The activity labels for the y dataframe which gives the final output. 
-    + Walking
-    + Walking Upstairs
-    + Walking Downstairs
-    + Sitting
-    + Standing
-    + Laying
+    + 1: Walking
+    + 2: Walking Upstairs
+    + 3: Walking Downstairs
+    + 4: Sitting
+    + 5: Standing
+    + 6: Laying
 
 
 ### Choosing Mean and Standard Deviation measures
