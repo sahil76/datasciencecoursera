@@ -10,23 +10,18 @@ setwd("E:/Coursera JHU R/datasciencecoursera")
 data <- read.table("household_power_consumption.txt",sep = ";",header = TRUE,stringsAsFactors = FALSE,na.strings = "?")
 
 # Changing the date formats
-data$Date = dmy(data$Date)
+data$DateTime = dmy_hms(paste(data$Date,data$Time))
 
 # Filtering out the data for the particular days
 calc_data = data%>%
-  filter(Date == ymd("2007-02-01") | Date == ymd("2007-02-02"))
-
-# Taking out the weekdays
-calc_data$weekday = wday(calc_data$Date)
+  filter(dmy(Date) == ymd("2007-02-01") | dmy(Date) == ymd("2007-02-02"))
 
 # Opening a png file to save the graph
 png("plot2.png",width = 480,height = 480)
 
 # Plotting the 2nd graph
-par(mar = c(5,4,2,2))
-plot(as.numeric(calc_data$Global_active_power),type ="l",axes = FALSE,frame.plot = TRUE,xlab = "",ylab = "Global Active Power (kilowatts)")
-axis(1,at = seq(0,2900,length.out = 3),labels = c("Thu","Fri","Sat"))
-axis(2,at = seq(0,6,2),lwd = 2)
+
+plot(calc_data$DateTime,as.numeric(calc_data$Global_active_power),type ="l",xlab = "",ylab = "Global Active Power (kilowatts)")
 
 # Closing the graphics device
 dev.off()

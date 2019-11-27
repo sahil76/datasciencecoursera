@@ -10,37 +10,28 @@ setwd("E:/Coursera JHU R/datasciencecoursera")
 data <- read.table("household_power_consumption.txt",sep = ";",header = TRUE,stringsAsFactors = FALSE,na.strings = "?")
 
 # Changing the date formats
-data$Date = dmy(data$Date)
+data$DateTime = dmy_hms(paste(data$Date,data$Time))
 
 # Filtering out the data for the particular days
 calc_data = data%>%
-  filter(Date == ymd("2007-02-01") | Date == ymd("2007-02-02"))
+  filter(dmy(Date) == ymd("2007-02-01") | dmy(Date) == ymd("2007-02-02"))
 
 # Opening a png file to save the graph
 png("plot4.png",width = 480,height = 480)
 
 # Plotting the 4th graph
-par(mfcol = c(2,2),oma = c(1,1,0,0),mar = c(2,2,0,0))
+par(mfcol = c(2,2),oma = c(2,2,2,2),mar = c(3,3,0,0))
 
-par(mar = c(6,6,4,4))
-plot(as.numeric(final_data$Global_active_power),type ="l",axes = FALSE,frame.plot = TRUE,xlab = "",ylab = "Global Active Power")
-axis(1,at = seq(0,2900,length.out = 3),labels = c("Thu","Fri","Sat"))
-axis(2,at = seq(0,6,2),lwd = 2)
+plot(calc_data$DateTime,as.numeric(calc_data$Global_active_power),type ="l",xlab = "",ylab = "Global Active Power")
 
-plot(as.numeric(final_data$Sub_metering_1),type = "l",axes = FALSE,frame.plot = TRUE,xlab = "",ylab = "Energy sub metering")
-lines(as.numeric(final_data$Sub_metering_2),col = "red")
-lines(as.numeric(final_data$Sub_metering_3),col = "blue")
-axis(1,at = seq(0,2900,length.out = 3),labels = c("Thu","Fri","Sat"))
-axis(2,at = seq(0,30,10),tick = TRUE,lty = "solid",lwd = 2)
+plot(calc_data$DateTime,as.numeric(calc_data$Sub_metering_1),type = "l",xlab = "",ylab = "Energy sub metering")
+lines(calc_data$DateTime,as.numeric(calc_data$Sub_metering_2),col = "red")
+lines(calc_data$DateTime,as.numeric(calc_data$Sub_metering_3),col = "blue")
 legend("topright",legend = c("Sub_metering_1","Sub_metering_2","Sub_metering_3"),lty = 1,col = c("black","red","blue"),bty = "n",cex = 0.5)
 
-plot(as.numeric(final_data$Voltage),type = "l",axes = FALSE,frame.plot = TRUE,xlab = "datetime",ylab = "Voltage")
-axis(1,at = seq(0,2900,length.out = 3),labels = c("Thu","Fri","Sat"))
-axis(2,at = seq(234,246,4),lwd = 2)
+plot(calc_data$DateTime,as.numeric(calc_data$Voltage),type = "l",xlab = "datetime",ylab = "Voltage")
 
-plot(as.numeric(final_data$Global_reactive_power),type = "l",axes = FALSE,frame.plot = TRUE,xlab = "datetime",ylab = "Global_reactive_power")
-axis(1,at = seq(0,2900,length.out = 3),labels = c("Thu","Fri","Sat"))
-axis(2,at = seq(0,0.5,.1),lwd = 2)
+plot(calc_data$DateTime,as.numeric(calc_data$Global_reactive_power),type = "l",xlab = "datetime",ylab = "Global_reactive_power")
 
 
 # Closing the graphics device
