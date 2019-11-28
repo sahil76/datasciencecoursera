@@ -1,82 +1,59 @@
-# Firstly loading all the required R packages
+# Loading the required datasets
 
 library(data.table)
-library(dplyr)
+library(reshape2)
 
-# Setting the working directory for reading the specific files for the train datasets
+# Defining the path and downloading the data set to perform the analysis
 
-setwd("E:/Coursera JHU R/datasciencecoursera/UCI HAR Dataset/train/Inertial Signals")
+path <- setwd("E:/Coursera JHU R/datasciencecoursera")
 
-    # The following commands are used for loading all the files related to train data sets into R
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 
-inertial_train = list.files(pattern = "*.txt")
-inertial_train_list = lapply(inertial_train,read.table)
+download.file(url,file.path(path,"Data_UCI_Char.zip"))
 
-inertial_train_df = bind_rows(inertial_train_list)
+# Load activity labels and features
 
-setwd("E:/Coursera JHU R/datasciencecoursera/UCI HAR Dataset/train")
+activity_labels <- read.table("UCI HAR Dataset/activity_labels.txt",col.names = c("classLabels","activityName"))
 
-subject_train = read.table("subject_train.txt")
-x_train = read.table("X_train.txt")
-y_train = read.table("y_train.txt")
+features <- read.table("UCI HAR Dataset/features.txt",col.names = c("index","featureNames"))
 
-rm("inertial_train_list")
+features_wanted <- grep("(mean|std)\\(\\)",features[,"featureNames"])
 
-# Setting the working directory for reading the specific files for the test datasets
+measurements <- features[features_wanted,"featureNames"]
+measurements <- gsub("[()]","",measurements)
 
-setwd("E:/Coursera JHU R/datasciencecoursera/UCI HAR Dataset/test/Inertial Signals")
+# Loading train datasets
 
-inertial_test = list.files(pattern = "*.txt")
-inertial_test_list = lapply(inertial_test,read.table)
+train <- read.table("UCI HAR Dataset/train/X_train.txt")[,features_wanted]
+data.table::setnames(train,colnames(train),measurements)
+trainActivities <- read.table("UCI HAR Dataset/train/Y_train.txt",col.names = c("Activity"))
+trainSubjects <- read.table("UCI HAR Dataset/train/subject_train.txt",col.names = c("SubjectNum"))
 
-inertial_test_df = bind_rows(inertial_test_list)
+train <- cbind(trainSubjects,trainActivities,train)
 
-setwd("E:/Coursera JHU R/datasciencecoursera/UCI HAR Dataset/test")
+# Loading test datasets
 
-subject_test = read.table("subject_test.txt")
-x_test = read.table("X_test.txt")
-y_test = read.table("y_test.txt")
+test <- read.table("UCI HAR Dataset/test/X_test.txt")[,features_wanted]
+data.table::setnames(test,colnames(test),measurements)
+testActivities <- read.table("UCI HAR Dataset/test/Y_test.txt",col.names = c("Activity"))
+testSubjects <- read.table("UCI HAR Dataset/test/subject_test.txt",col.names = c("SubjectNum"))
 
-rm("inertial_test_list")
+test <- cbind(testSubjects,testActivities,test)
 
-# The following commands are used for binding the respective dataframes so as to get a merged data
+# Combining the datasets
 
-inertial_df = rbind(inertial_train_df,inertial_test_df)
-subject_df = rbind(subject_train,subject_test)
+final_data <- rbind(train,test)
 
-x_df = rbind(x_train,x_test)
-y_df = rbind(y_train,y_test)
+# Converting the classLabels to activity names basicallly and factorising the subjectNum
 
-# Again changing the working directory so that we can load the required features files
+final_data[["Activity"]] <- factor(final_data[,"Activity"],levels = activity_labels$classLabels,labels = activity_labels$activityName)
 
-setwd("E:/Coursera JHU R/datasciencecoursera/UCI HAR Dataset")
+final_data$SubjectNum <- as.factor(final_data$SubjectNum)
 
-features = read.table("features.txt")[2]    # The features file being loaded in R
-str(features)
+final_data <- melt(final_data,id = c("SubjectNum","Activity"))
 
-features$V2 = as.character(features$V2)     # Changing the class of features vector to a character vector so as to use this to change 
-                                            # the colnames in the x dataframe    
-colnames(x_df) = features$V2
+final_data <- dcast(final_data,SubjectNum + Activity ~ variable , fun.aggregate = mean)
 
-class(y_df$V1)
+# Writing the final tidy data set to a text file
 
-activity_labels = c("WALKING","WALKING_UPSTAIRS","WALKING_DOWNSTAIRS","SITTING","STANDING","LAYING")
-
-y_df$V1 = factor(y_df$V1,labels = activity_labels)  # Changing the activity labels in the activities vector
-
-names(y_df) = "Activities"
-
-# The following code is used to selecting only the mean and standard deviations descriptives from the descriptives file
-
-selecting_mean_and_std = grep("mean[()]|std()",colnames(x_df))
-mean_std_df = x_df[,selecting_mean_and_std]
-
-# Merging the whole data set of measures and the results
-
-final_df = cbind(x_df,y_df)
-
-# Following calculation provides the required tidy data set as per the 5th problem
-
-cal_5 = aggregate(final_df[,1:561],list(final_df[,562]),mean)   # Here aggregate() function is used to get the mean of all the measures
-                                                                # with respect to the activities
-write.table(cal_5,"Tidy_data_set_5.txt",row.names = FALSE)      # Writing the dataset into a text file
+write.table(final_data,"tidyData.txt")

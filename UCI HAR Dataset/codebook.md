@@ -5,61 +5,34 @@ output: html_document
 
 ## Codebook for the Assignment on Getting and Cleaning Data in R
 
-### Train Datasets :
-
-**1. inertial_train** : It lists all the txt files in the Inertial signals folder in the train data.
-
-**2. inertial_train_list** : This is a list which reads all the concerning files in inertial_train.
-
-**3. inertial_train_df** : It is a dataframe which binds all the read inertial_train files
-
-**4. subject_train** : The subject_train data set
-
-**5. x_train and y_train** : The dataframes of x and y in the train data.
-
-### Test Datasets :
-
-**1. inertial_test** : It lists all the txt files in the Inertial signals folder in the test data.
-
-**2. inertial_test_list** : This is a list which reads all the concerning files in inertial_test.
-
-**3. inertial_test_df** : It is a dataframe which binds all the read inertial_test files
-
-**4. subject_test** : The subject_test data set
-
-**5. x_test and y_test** : The dataframes of x and y in the test data.
-
-### Bindind datasets:
-
-**1. inertial_df** : Merging the datasets of the inertial dataframes of train and test.
-
-**2. subject_df** : Merging the subjects dataframes of train and test.
-
-**3. x_df and y_df** : Merging the data pertaining to x and y dataframes.
-
 ### Reading features related file and defining the activity labels
 
-* **features** : File containing the features of the measures dataframe.
+* **activity_labels** : File containing the activity lables with class Labels.
 
-* **activity_labels** : The activity labels for the y dataframe which gives the final output. 
-    + 1: Walking
-    + 2: Walking Upstairs
-    + 3: Walking Downstairs
-    + 4: Sitting
-    + 5: Standing
-    + 6: Laying
+* **features ** : File with all the 561 features with their respective index.
 
+* **features_wanted ** : All the required features with either mean or standard deviation
 
-### Choosing Mean and Standard Deviation measures
+### Train Datasets :
 
-**1. selecting_mean_and_std ** : It is a vector which provides which columns in the x_df have the mean and standard deviation measures.
+**1. train** : The initial train dataset.
 
-**2. mean_std_df ** : This is a dataframe which contains all the required columns as per the selecting_mean_std vector.
+**2. trainActivities** : The train activities dataset.
 
-### Merged x and y dataframe :
+**3. trainSubject** : The train subjects dataset.
 
-**final_df** : This is a merged dataset for the x and y dataframe pertaining to merged train and test data.
+### test Datasets :
 
-### The Aggregated dataset for caculating mean for all the measures with respect to the activities
+**1. test** : The initial test dataset.
 
-**cal_5** : Mean for all the measures with respect to the activities. 
+**2. testActivities** : The test activities dataset.
+
+**3. testSubject** : The test subjects dataset.
+
+### Final datasets:
+
+* **final_data** : It is the binded dataset of the train and test datasets.
+
+### Calculations for the average of each variable for each activity and each subject :
+
+* For the required calculation we converted the class labels as (1,2,3,4,5,6) to their respective activity labels ("Walking","Walking upstairs",etc) and then we used the melt() function to reduce the data by two variables namely the Subject variable and the Activity variable, and finally we used the dcast() function to calculate mean for the same.
